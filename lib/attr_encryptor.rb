@@ -31,7 +31,7 @@ module AttrEncryptor
   end
 
   module ClassMethods
-    def attr_encrypted *attrs
+    def attr_encryptor *attrs
       attrs.each do |attr|
         define_method("#{attr}=") { |v| self.send "#{attr}_encrypted=", AttrEncryptor.aes.encrypt(v) }
         define_method(attr) { AttrEncryptor.aes.decrypt(self.send "#{attr}_encrypted") }

@@ -31,7 +31,7 @@ describe AttrEncryptor do
       @class = Class.new do
         include AttrEncryptor
         attr_accessor :foo_encrypted, :bar_encrypted
-        attr_encrypted :foo, :bar
+        attr_encryptor :foo, :bar
       end
     end
 
