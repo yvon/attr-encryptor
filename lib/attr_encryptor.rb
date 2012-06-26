@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require 'yaml'
 require 'attr_encryptor/config'
 require 'attr_encryptor/aes'
@@ -35,11 +37,11 @@ module AttrEncryptor
       attrs.each do |attr|
         define_method("#{attr}=") do |v|
           serialized = YAML::dump(v)
-          self.send "#{attr}_encrypted=", AttrEncryptor.aes.encrypt(serialized)
+          self.send "#{attr}_encrypted=", [AttrEncryptor.aes.encrypt(serialized)].pack('m')
         end
         define_method(attr) do
           return nil unless self.send("#{attr}_encrypted").is_a?(String)
-          YAML::load AttrEncryptor.aes.decrypt(self.send "#{attr}_encrypted")
+          YAML::load(AttrEncryptor.aes.decrypt(self.send("#{attr}_encrypted").unpack('m')[0]))
         end
       end
     end
