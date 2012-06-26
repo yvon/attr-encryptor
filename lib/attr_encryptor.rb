@@ -33,8 +33,14 @@ module AttrEncryptor
   module ClassMethods
     def attr_encryptor *attrs
       attrs.each do |attr|
-        define_method("#{attr}=") { |v| self.send "#{attr}_encrypted=", AttrEncryptor.aes.encrypt(v) }
-        define_method(attr) { AttrEncryptor.aes.decrypt(self.send "#{attr}_encrypted") }
+        define_method("#{attr}=") do |v|
+          serialized = YAML::dump(v)
+          self.send "#{attr}_encrypted=", AttrEncryptor.aes.encrypt(serialized)
+        end
+        define_method(attr) do
+          return nil unless self.send("#{attr}_encrypted").is_a?(String)
+          YAML::load AttrEncryptor.aes.decrypt(self.send "#{attr}_encrypted")
+        end
       end
     end
   end

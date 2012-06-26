@@ -35,12 +35,34 @@ describe AttrEncryptor do
       end
     end
 
-    it "should encrypt and decrypt without data loss" do
-      object_1, object_2 = @class.new, @class.new
-      object_1.foo = plain = 'test'
-      object_1.foo_encrypted.should_not == plain
-      object_2.foo_encrypted = object_1.foo_encrypted
-      object_2.foo.should == plain
+    subject { @class.new }
+
+    its(:foo) { should be_nil }
+    its(:bar) { should be_nil }
+
+    shared_examples_for "encrypt/decrypt" do
+      it "should encrypt and decrypt without data loss" do
+        object_1, object_2 = @class.new, @class.new
+        object_1.foo = plain
+        object_1.foo_encrypted.should_not == plain
+        object_2.foo_encrypted = object_1.foo_encrypted
+        object_2.foo.should == plain
+      end
+    end
+
+    context "encrypting a string" do
+      let(:plain) { 'test' }
+      it_behaves_like "encrypt/decrypt"
+    end
+
+    context "encrypting an integer" do
+      let(:plain) { 42 }
+      it_behaves_like "encrypt/decrypt"
+    end
+
+    context "encrypting nil" do
+      let(:plain) { nil }
+      it_behaves_like "encrypt/decrypt"
     end
   end
 end
