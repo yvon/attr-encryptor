@@ -16,8 +16,8 @@ module AttrEncryptor
       @aes ||= AES.new(config.key)
     end
 
-    def env
-      defined?(Rails) && Rails.respond_to?(:env) ? Rails.env : 'development'
+    def config= hash
+      @hash_config = hash
     end
 
     def config
@@ -25,10 +25,11 @@ module AttrEncryptor
     end
 
     def initialize_config
-      raise "#{YAML_CONFIG_FILE} should exist on production environment" if
-        env == 'production' && !File.exist?(YAML_CONFIG_FILE)
-      hash = YAML.load_file(YAML_CONFIG_FILE) rescue { :key => 'secret' }
-      Config.new(hash)
+      unless @hash_config
+        puts "No configuration provided. Using defaults."
+        @hash_config = { :key => 'secret' }
+      end
+      Config.new(@hash_config)
     end
   end
 
