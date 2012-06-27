@@ -14,16 +14,6 @@ describe AttrEncryptor do
     it "should return an AttrEncryptor::Config" do
       subject.call.should be_an AttrEncryptor::Config
     end
-
-    it "should load yaml configuration file" do
-      YAML.should_receive(:load_file).with(AttrEncryptor::YAML_CONFIG_FILE).and_return Hash.new
-      subject.call
-    end
-
-    it "should raise on production environment if the YAML does not exist" do
-      AttrEncryptor.stub(:env).and_return('production')
-      expect { subject.call }.to raise_error
-    end
   end
 
   describe "when included" do
@@ -39,6 +29,16 @@ describe AttrEncryptor do
 
     its(:foo) { should be_nil }
     its(:bar) { should be_nil }
+
+    it "should not raise when the encrypted value is nil" do
+      subject.foo_encrypted = nil
+      subject.foo.should be_nil
+    end
+
+    it "should not raise when the encrypted value is an empty string" do
+      subject.foo_encrypted = ''
+      subject.foo.should == ''
+    end
 
     shared_examples_for "encrypt/decrypt" do
       it "should encrypt and decrypt without data loss" do

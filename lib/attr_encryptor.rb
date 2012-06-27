@@ -25,11 +25,7 @@ module AttrEncryptor
     end
 
     def initialize_config
-      unless @hash_config
-        puts "No configuration provided. Using defaults."
-        @hash_config = { :key => 'secret' }
-      end
-      Config.new(@hash_config)
+      Config.new(@hash_config || { :key => 'secret' })
     end
   end
 
@@ -41,8 +37,10 @@ module AttrEncryptor
           self.send "#{attr}_encrypted=", [AttrEncryptor.aes.encrypt(serialized)].pack('m')
         end
         define_method(attr) do
-          return nil unless self.send("#{attr}_encrypted").is_a?(String)
-          YAML::load(AttrEncryptor.aes.decrypt(self.send("#{attr}_encrypted").unpack('m')[0]))
+          encrypted = self.send("#{attr}_encrypted")
+          return nil unless encrypted.is_a?(String)
+          return '' if encrypted.empty?
+          YAML::load(AttrEncryptor.aes.decrypt(encrypted.unpack('m')[0]))
         end
       end
     end
